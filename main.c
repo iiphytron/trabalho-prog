@@ -6,8 +6,6 @@
 #include "base_dados.h" //$ le o ficheiro  e liberta memoria 
 #include "funcoes.h" //$elimina espaços, tudo em maisculas, copia o string
 
-#define MAX_LENGTH 256 //tamanho max do input
-
 
 int modo_portugues = 0;//$ default= ingles, fica "1" com -p e muda para base de dados portugues
 FILE *input_global = NULL;
