@@ -29,4 +29,4 @@ char *sem_espacos(char *str);
  * Devolve a linha lida como uma string. */
 char *leitura_linha(FILE *ficheiro);
 
-#endif  //Fim da inclusão guardada
+#endif  //Fim da inclusão guardada// teste
