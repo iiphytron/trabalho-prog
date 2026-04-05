@@ -47,7 +47,7 @@ static const Substituicao pt_version[] = {
     {"TU",     "EU"},
     {"COMIGO", "CONTIGO"},
     {"CONTIGO","COMIGO"},
-    {"TEU",    "MEU"},      // ordem da tabela original
+    {"TEU",    "MEU"},  
     {"SEU",    "MEU"},
     {"TEUS",   "MEUS"},
     {"SEUS",   "MEUS"},
@@ -64,105 +64,121 @@ static const Substituicao pt_version[] = {
     {NULL, NULL}
 };
 
-/* função responsável por contar o número de palavras da str, 
+/*função responsável por contar o número de palavras da str, 
 para dps sabermos se estamos na última palavra ou não, no caso da substituição do "YOU" pelo "I"
-palavras são conjuntos de char separados por espaços */
+palavras são conjuntos de char separados por espaços*/
+//variável de controlo "fora" para saber se estamos dentro ou fora de uma palavra: 0-> dentro de uma palavra(não), 1-> fora(sim)
 
-static int qnts_palavras(const char *s) {
+static int contador_palavras(const char *s) {
     int contador= 0;                // Contador de palavras
-    int in_word = 0;                /* Flag: estamos dentro de uma palavra? */
-    for (int i = 0; s[i]; i++) {
-        if (s[i] == ' ')            /* Espaco: saimos da palavra */
-            in_word = 0;
-        else if (!in_word) {        /* Caracter nao-espaco e estavamos fora */
-            in_word = 1;            /* Entramos numa nova palavra */
-            contador++;                /* Incrementa contador */
+    int fora=0;                     
+    for (int i=0; s[i]; i++) {      //percorre cada character da string até chegar ao '\0'
+        if (s[i]== ' ')             //se encontrarmos um espaço, saímos da palavra
+            fora= 1;                //else=dentro, fora=0
+        else if (fora) {            //se o character não for um espaço e estávamos fora, então entramos numa nova palavra
+            fora=0;            
+            contador++;             //incrementamos o contador de palavras
         }
     }
     return contador;
 }
 
-/* split_words: divide uma string em palavras individuais.
- * Retorna um array de strings (cada uma alocada dinamicamente).
- * O numero de palavras e escrito em *nwords.
- * Usa strtok() para separar por espacos. */
-static char **split_words(const char *s, int *nwords) {
-    *nwords = qnts_palavras(s);       /* Conta quantas palavras ha */
-    if (*nwords == 0)               /* String vazia */
+/* função responsável por dividir a string em palavras (separadas por espaços) e devolver um array de strings,
+ guarda o número de palavras escrito para sabermos quantas separações temos de fazer e que memória alocar para o array de strings,
+ para fazermos essa separação recorremos à função strtok() (para separar por espacos) */
+
+static char **definir_palavras(const char *s, int *num_palavras) {
+    *num_palavras= contador_palavras(s);       //conta quantas palavras há na str
+    if (*num_palavras == 0)               
         return NULL;
-    /* Aloca array de ponteiros para as palavras */
-    char **words = malloc(sizeof(char *) * (*nwords));
-    char *copy = my_strdup(s);      /* Copia porque strtok modifica a string */
-    int idx = 0;
-    /* strtok divide a string nos espacos, retornando cada token */
-    char *tok = strtok(copy, " ");
-    while (tok && idx < *nwords) {
-        words[idx++] = my_strdup(tok);  /* Duplica cada palavra */
-        tok = strtok(NULL, " ");        /* Proxima palavra */
+    
+    char **palavras= malloc(sizeof(char *) * (*num_palavras));      //alocamos array de ponteiros para guardar as palavras
+    char *copia= copiar_string(s);      //copiamos a str porque strtok modifica a str original
+    int indice= 0;
+    //strtok vai dividir a string nos espacos, retornando cada uma variavél auxiliar (token com cada palavra e NULL quando não houver mais palavras)
+    char *token= strtok(copia, " ");
+    while (token && indice < *num_palavras) {
+        palavras[indice++]= copiar_string(token);       //copiamos a palavra do token para o array de palavras, e incrementamos o indice, para sabermos em que palavra vamos
+        token= strtok(NULL, " ");        //próxima palavra
     }
-    free(copy);                     /* Liberta a copia temporaria */
-    return words;
+    free(copia);                     //libertamos a copia da str, dps de guardarmos as palavras no array de palavras
+    return palavras;
 }
 
-/* conjugate: funcao principal deste modulo.
- * Recebe o texto remanescente (depois da keyword) e aplica as regras
- * de substituicao de pronomes.
- *
- * O array 'replaced' marca as palavras ja substituidas para evitar
- * substituicoes em cadeia (ex: "I" -> "YOU" -> "I" de volta).
- *
- * Caso especial em ingles: "YOU" torna-se "I" no meio da frase,
- * mas "ME" se for a ultima palavra da linha. */
-char *conjugate(const char *remainder, int portuguese) {
-    int nwords;
-    char **words = split_words(remainder, &nwords);
-    if (!words || nwords == 0)              /* Texto vazio */
-        return my_strdup("");               /* Retorna string vazia */
+/* funcao principal do modulo:
+ recebe o texto depois da keyword, e visa aplicar as regras de substituição dos pronomes
+ criamos um array "replaced" que marca as palavras ja substituídas para evitar substituições duplas (ex: "I" -> "YOU" -> "I" de volta)
+ garantimos que no funcionamento em ingles: "YOU" passa a "I" no meio da frase, mas "ME" na ultima palavra da linha. */
+ char *pronomes(const char *restante, int ingles) {     //inglês como principal (1=inglês, 0=português)
+    int num_palavras;         
+    char **palavras= definir_palavras(restante, &num_palavras);     //guarda as palavras restantes do input(depois da keyword)
+    
+    if (palavras== NULL || num_palavras == 0)              
+        return copiar_string("");               //devolve umaa str vazia
 
-    /* Seleciona a tabela de regras conforme o idioma */
-    const Substituicao *rules = portuguese ? pt_version : en_version;
-    /* Array de flags: replaced[i]=1 se a palavra i ja foi substituida */
-    int *replaced = calloc(nwords, sizeof(int));
+    //escolhemos as substituições conforme o idioma
+    const Substituicao *pronomes_substituir;       //ponteiro para a tabela de substituição a usar
+    if (ingles) {
+        pronomes_substituir= en_version;
+    } else {
+        pronomes_substituir= pt_version;
+    }
 
-    /* Percorre cada palavra e aplica regras de substituicao */
-    for (int i = 0; i < nwords; i++) {
-        if (replaced[i])                    /* Ja foi substituida, salta */
+    //Alocamos memória para o array, que marca as palavras já substituídas-> se replaced[i]=1 a palavra i já foi substituída
+    int *replaced= calloc(num_palavras, sizeof(int));       /*void *calloc(size_t num_elementos, size_t tamanho_elemento);
+                                                            o calloc zera todos os bits da memória alocada, evitando lixo*/
+
+    //percorre as palavra 1 a 1, e faz a substituição de acordo com as regras
+    for (int i = 0; i < num_palavras; i++) {        
+        if (replaced[i])                    //se a palavra i já foi substituída, saltamos para a próxima palavra, avançamos o i
             continue;
 
-        /* Caso especial: "YOU" em ingles */
-        if (!portuguese && strcmp(words[i], "YOU") == 0) {
-            free(words[i]);                 /* Liberta a palavra original */
-            /* Se e a ultima palavra, substitui por "ME"; senao, por "I" */
-            words[i] = my_strdup(i == nwords - 1 ? "ME" : "I");
-            replaced[i] = 1;               /* Marca como substituida */
-            continue;                       /* Passa a proxima palavra */
+        //exceção do "YOU"
+        if (ingles && strcmp(palavras[i], "YOU") == 0) {
+            free(palavras[i]);                 //libertamos o pronome original
+            
+            //se YOU for a última palavra, substituimos por "ME"-> se não substituímos por I
+            if (i== num_palavras - 1) {     //-1, pois os indices começam no 0, logo o índice da última palavra é num_palavras-1, ex.: num_palavras=4, indice=3
+            palavras[i]= copiar_string("ME");       //copiamos a str ME, o array das palavras, para na reconstrução da resposta substituirmos o YOU pelo pronome ME
+            } else {
+            palavras[i]= copiar_string("I");   //YOU em qq outra posição I
+            }
+            replaced[i]= 1;               //marcamos a palavra como substituida
+            continue;                     //passamos para a próxima palavra
         }
 
-        /* Percorre a tabela de regras ate encontrar match ou fim da tabela */
-        for (int r = 0; rules[r].pron_original != NULL; r++) {
-            if (strcmp(words[i], rules[r].pron_original) == 0) {
-                free(words[i]);             /* Liberta a original */
-                words[i] = my_strdup(rules[r].pron_resp);  /* Substitui */
-                replaced[i] = 1;           /* Marca como substituida */
-                break;                      /* Sai do ciclo de regras */
+        //percorre a const dos pronomes até encontrar match ou fim da tabela
+        for (int r= 0; pronomes_substituir[r].pron_original != NULL; r++) {
+            
+            if (strcmp(palavras[i], pronomes_substituir[r].pron_original) == 0) {       //comparamos a palavra i com o pronome original da tabela de substituição, se for igual, fazemos a substituição
+                free(palavras[i]);             //libertamos a palavra original
+                palavras[i]= copiar_string(pronomes_substituir[r].pron_resp);  //substituímos pela resposta correspondente
+                replaced[i] = 1;           //marcamos como substituída
+                break;                      //saímos do ciclo de regras
             }
         }
     }
 
-    /* Reconstroi a string final juntando todas as palavras com espacos */
-    size_t total = 0;
-    for (int i = 0; i < nwords; i++)
-        total += strlen(words[i]) + 1;      /* +1 para espaco ou '\0' */
+    //Função responsável por reconstruir a str final (após substituição) juntando todas as palavras com espaços 
+    size_t total= 0;            //variável para guardar o tamanho total da str final (resposta), para alocarmos a memória necessária para essa str e para juntarmos as palavras todas
+    for (int i= 0; i < num_palavras; i++)
+        total+= strlen(palavras[i]) + 1;      //+1 para espaco ou para o character terminal '\0'
 
-    char *result = malloc(total + 1);       /* +1 de seguranca */
-    result[0] = '\0';                       /* Inicia string vazia */
-    for (int i = 0; i < nwords; i++) {
-        if (i > 0)
-            strcat(result, " ");            /* Espaco entre palavras */
-        strcat(result, words[i]);           /* Anexa a palavra */
-        free(words[i]);                     /* Liberta a palavra */
+    char *str_final= malloc(total);             //str final-> resposta do eliza dps da substituição e da junção das palavras, alocamos a memória necessária para essa str
+    str_final[0]= '\0';                        //inicialização da str como vazia 
+    for (int i= 0; i < num_palavras; i++) {
+        
+        /*strcat-> concatena as palavras, 
+        char *strcat(char *destino, const char *origem), 
+        a função copia a str origem e a cola a nova palavra a partir do /0 da string destino, substituindo-o.*/
+        
+        if (i> 0){
+            strcat(str_final, " ");         //adicionamos um espaço entre as palavras, mas não antes da primeira palavra, daí i>0            
+        }
+        strcat(str_final, palavras[i]);        //concatena a palavra atual à str final
+        free(palavras[i]);                     //liberta a palavra, após esta já estar na str final, para não haver memory leak
     }
-    free(words);                            /* Liberta array de ponteiros */
-    free(replaced);                         /* Liberta array de flags */
-    return result;                          /* Retorna texto conjugado */
+    free(palavras);                         
+    free(replaced);                    //libertamos as variaveis usadas                        
+    return str_final;
 }
