@@ -164,7 +164,7 @@ static char **definir_palavras(const char *s, int *num_palavras) {
     for (int i= 0; i < num_palavras; i++)
         total+= strlen(palavras[i]) + 1;      //+1 para espaco ou para o character terminal '\0'
 
-    char *str_final= malloc(total);             //str final-> resposta do eliza dps da substituição e da junção das palavras, alocamos a memória necessária para essa str
+    char *str_final= malloc(total +1);             //str final-> resposta do eliza dps da substituição e da junção das palavras, alocamos a memória necessária para essa str +1 , para o char terminal
     str_final[0]= '\0';                        //inicialização da str como vazia 
     for (int i= 0; i < num_palavras; i++) {
         
