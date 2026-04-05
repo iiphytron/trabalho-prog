@@ -79,7 +79,7 @@ int main(int argc, char *argv[])//$ c= num argumentos linha de commando, v= arra
     ler_ficheiro(ficheiro);//$ le o ficheiro data, guarda keywords,asteriscos,  e mensagens
     if (output_inicio !=NULL )
     {
-        printf(output_global, "%s", output_inicio);
+        fprintf(output_global, "%s", output_inicio);
         if (log_file)
         printf(log_file,"%s, output_inicio");//$ se log_file=1 escreve no ficheiro log
 
@@ -89,7 +89,7 @@ int main(int argc, char *argv[])//$ c= num argumentos linha de commando, v= arra
     
     while(1)
     {
-        printf(output_global, "input>");
+        fprintf(output_global, "input>");
         if (fgets(buffer,MAX_LENGTH, input_global)==NULL) // fgets returns NULL se chegarmos a End Of FIle
         {break;}
         
@@ -114,8 +114,8 @@ int main(int argc, char *argv[])//$ c= num argumentos linha de commando, v= arra
         if (strcmp (linha_limpa, palavra_fim) == 0)//$ compara input do utilizador com palavra fim se corresponder a 0 termina cycle
         if (output_fim != NULL)
         {
-            printf(output_global, "%s", output_fim);//$ imprime mensagem de despedida
-        if (log_file) printf (log_file, "%s",output_fim);//$guarda no log se log esta ativo
+            fprintf(output_global, "%s", output_fim);//$ imprime mensagem de despedida
+        if (log_file) fprintf (log_file, "%s",output_fim);//$guarda no log se log esta ativo
         }
         break;
 
@@ -124,8 +124,8 @@ int main(int argc, char *argv[])//$ c= num argumentos linha de commando, v= arra
     {
         if(output_repetiçao != NULL)
         {
-            printf(output_global, "%s",output_repetiçao );
-            if (log_file) printf(log_file,"%s", output_repetiçao);
+            fprintf(output_global, "%s",output_repetiçao );
+            if (log_file) fprintf(log_file,"%s", output_repetiçao);
         }
         continue;//nao atuualiza nada pq é repetido
     }
