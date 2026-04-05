@@ -118,7 +118,7 @@ int main(int argc, char *argv[])//$ c= num argumentos linha de commando, v= arra
                 fprintf(output_global, "%s", output_fim);//$ imprime mensagem de despedida
         if (log_file) fprintf (log_file, "%s",output_fim);//$guarda no log se log esta ativo
             }
-        free(linha_lida);
+        free(linha_limpa);
         break;
         }                    
 
