@@ -81,25 +81,24 @@ if (linha==NULL){
     }
     
 int c; //character lido
-    while ( (c=fgetc(ficheiro) ) !=EOF && c !='\n') 
-    { 
-    if (length +1 >= capacidade) {
-    capacidade*= 2;}
-    
-    char *buffer= realloc(linha, capacidade);      
-    if (buffer==NULL) {                            
-        free(linha);                               
-        return NULL;
+   while ((c=fgetc(ficheiro))!=EOF && c!='\n') {
+        if (length +1 >= capacidade) {
+            capacidade*= 2; 
+            char *buffer= realloc(linha, capacidade);      
+            if (buffer==NULL) {                            
+                free(linha);                              
+                return NULL;
+            }
+            linha= buffer;                     
         }
-        linha= buffer;                      //substituímos o buffer se correr bem a realocação
+        linha[length++] = (char)c;        //cast para char, pois para utilizar fgetc definimos como int              
     }
-    linha[length++]=(char)c;  //anteriormente definido como int para a utilzação do fgetc
-}
-//se a função não tiver lido nada e chegou ao EOF, então sabemos que não há mais linhas
-if (length== 0 && c== EOF) {
-    free(linha);                        
-    return NULL;
+    //se não leu nada e chegou ao EOF, então sabemos que não há mais linhas
+    if (length== 0 && c== EOF) 
+    {
+        free(linha);                        
+        return NULL;
     }
-    linha[length]= '\0';                       
+    linha[length]= '\0';        
     return linha;                              
 }
