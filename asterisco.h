@@ -9,13 +9,12 @@
 #ifndef ASTERISCO_H
 #define ASTERISCO_H
 
-/* pronomes: aplica as regras de substituicao de pronomes ao texto dado.
- * Parametros:
- *   restante - texto a conjugar, dps da keyword (já em maiúsculas)
- *   ingles=1 se o texto tiver em EN, 0 se em PT, para sabermos que pronomes usar
- *   Devolve a nova string, str final, alocada dinamicamente
+/* função pronomes: aplica as regras de substituicao de pronomes ao texto dado.
+ * NOTE-SE, que:
+ * restante - texto a conjugar, dps da keyword (já em maiúsculas)
+ * ingles=1 se o texto tiver em EN, 0 se em PT, para sabermos que pronomes usar
+ * Devolve a nova string, str final, alocada dinamicamente
  */
-
  char *pronomes(const char *restante, int ingles);
 
 #endif 
