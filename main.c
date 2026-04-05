@@ -19,7 +19,7 @@ int main(int argc, char *argv[])//$ c= num argumentos linha de commando, v= arra
     output_global = stdout;
 
     int opt;//$ a opçao que getopt guardou
-    while ((opt = getopt (argc, argv, "h:o:l:f:p:i") )!=-1)
+    while ((opt = getopt (argc, argv, "h  o:l:f:p:i:") )!=-1)
     {
         switch (opt)
         {
@@ -154,7 +154,7 @@ int main(int argc, char *argv[])//$ c= num argumentos linha de commando, v= arra
                     strcat(resposta_final,asterisco+1);//$copy paste
                     resposta_final[tamanho_antes] = '\0'//$ termina a string
 
-                    fprintf(output_global, "%s",resposta_final );
+                    fprintf(output_global, "%s\n",resposta_final );
                     if (log_file) fprintf(log_file, "%s",resposta_final );
                     free(conjugado);
                     free(resposta_final);
