@@ -86,21 +86,20 @@ int c; //character lido
     if (length +1 >= capacidade) {
     capacidade*= 2;}
     
-char *buffer= realloc(linha, capacidade);      
-        if (buffer==NULL) {                            
-           free(linha);                               
-           return NULL;
-           }
-        linha= buffer;                      //substituímos o buffer se correr bem a realocação
+    char *buffer= realloc(linha, capacidade);      
+    if (buffer==NULL) {                            
+        free(linha);                               
+        return NULL;
         }
-        linha[length++]=(char)c;  //anteriormente definido como int para a utilzação do fgetc
+        linha= buffer;                      //substituímos o buffer se correr bem a realocação
+    }
+    linha[length++]=(char)c;  //anteriormente definido como int para a utilzação do fgetc
 }
 //se a função não tiver lido nada e chegou ao EOF, então sabemos que não há mais linhas
-if (length== 0 && c== EOF) 
-{
-free(linha);                        
-return NULL;
-}
-linha[length]= '\0';                       
-   return linha;                              
+if (length== 0 && c== EOF) {
+    free(linha);                        
+    return NULL;
+    }
+    linha[length]= '\0';                       
+    return linha;                              
 }
