@@ -27,7 +27,7 @@ size_t capacidade_dg=8;    //capacidade atual do array dados_guardados, começam
 //Função para aumentar a capacidade do array dados_guardados se necessário
 //Explicação realloc linha 116, funcoes.c
 void aumentar_capacidade_dg() {
-    if (tamanho_dg >= capacidade_dg) {  
+    if ((size_t)tamanho_dg >= capacidade_dg) {  
     capacidade_dg *= 2;       // Duplicamos a capacidade
 
     Key_Resposta *novo_array= realloc(dados_guardados, capacidade_dg * sizeof(Key_Resposta));          // tenta realocar, size dados_guardados para capacidade nova
@@ -51,7 +51,7 @@ char *output_fim = NULL;        //mostrada quando o utilizador escrever "BYE"
     usamos a função strstr() para encontrar uma string(keyyword), dentro de outra string(input), 
     e depois verificamos se o caracter antes e depois da keyword é um espaço ou o ínicio/fim da string */
 
-static char *procura_keywords(const char *linha, const char *keyword) {     //linha= input já em maiúsculas
+char *procura_keywords(const char *linha, const char *keyword) {     //linha= input já em maiúsculas
     int tamanho_keyword= strlen(keyword);
     const char *procura= linha;               // Ponteiro de pesquisa, começa no início da linha e vai avançando para procurar a keyword
 
