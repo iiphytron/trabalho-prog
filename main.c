@@ -79,21 +79,21 @@ int main(int argc, char *argv[])//$ c= num argumentos linha de commando, v= arra
     ler_ficheiro(ficheiro);//$ le o ficheiro data, guarda keywords,asteriscos,  e mensagens
     if (output_inicio !=NULL )
     {
-        fprintf(output_global, "%s", output_inicio);
+        fprintf(output_global, "%s\n", output_inicio);
         if (log_file)
-        fprintf(log_file,"%s, output_inicio");//$ se log_file=1 escreve no ficheiro log
+        fprintf(log_file,"%s\n", output_inicio");//$ se log_file=1 escreve no ficheiro log
 
     }
-    char buffer[MAX_LENGTH]; //$ spot para guardar a linha lida
     char *ultima_linha= NULL;// guarda o input anterior 
     
     while(1)
     {
         fprintf(output_global, "input>");
-        if (fgets(buffer,MAX_LENGTH, input_global)==NULL) // fgets returns NULL se chegarmos a End Of FIle
+        char *linha_lida = leitura_linha(input_global);//$chama leitura linha le o input; aloca memoria e guarda um ponteiro linha_lida 
+            if (linha_lida == NULL)
         {break;}
         
-        if (log_file) fprintf(log_file, %s, buffer);//guarda input no log 
+        if (log_file) fprintf(log_file, %s\n, buffer);//guarda input no log 
         //$ remover char invalidos espacos e mete em maisculas
         limpar_input(buffer);
         char *linha_limpa =sem_espacos(buffer);
@@ -105,7 +105,7 @@ int main(int argc, char *argv[])//$ c= num argumentos linha de commando, v= arra
         const char *palavra_fim;
         if (modo_portugues ==1)
         {
-            palavra_fim = ("ADIOS");
+            palavra_fim = ("ADEUS");
         }
         else
         {
