@@ -24,7 +24,13 @@ int main(int argc, char *argv[])//$ c= num argumentos linha de commando, v= arra
         switch (opt)
         {
         case 'h':
-        printf("nigga");
+         printf("Uso: ./eliza [OPTIONS]\n");
+                printf("  -h  ajuda\n");
+                printf("  -i nome ficheiro de entrada\n");
+                printf("  -o nome ficheiro de saida\n");
+                printf("  -l  criar ficheiro de log\n");
+                printf("  -f  base de dados alternativa\n");
+                printf("  -p  modo portugues\n");
         return EXIT_SUCCESS;
             //help depois fazer os prints
 //-----------------------------------------------------------------------------------------------------------------------------------------//
