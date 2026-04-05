@@ -116,8 +116,8 @@ int main(int argc, char *argv[])//$ c= num argumentos linha de commando, v= arra
         {
             fprintf(output_global, "%s", output_fim);//$ imprime mensagem de despedida
         if (log_file) fprintf (log_file, "%s",output_fim);//$guarda no log se log esta ativo
-        }
         break;
+        }                    
 
     }
     if (ultima_linha!= NULL &&(strcmp (linha_limpa, ultima_linha)==0 ))
@@ -127,19 +127,52 @@ int main(int argc, char *argv[])//$ c= num argumentos linha de commando, v= arra
             fprintf(output_global, "%s",output_repetiçao );
             if (log_file) fprintf(log_file,"%s", output_repetiçao);
         }
-        continue;//nao atuualiza nada pq é repetido
+        continue;//$nao atuualiza nada pq é repetido
     }
-    Key_Resposta *conjunto = encontrar_keyw (linha_limpa);// procura keyw no DB que aparece no input
+    Key_Resposta *conjunto = encontrar_keyw (linha_limpa);//$ procura keyw no DB que aparece no input
     if(conjunto!= NULL)
     {
-        char *resp = gerar_nova_resposta(conjunto);//gerar resposta e alterar de forma circular
+        char *resp = gerar_nova_resposta(conjunto);//$gerar resposta e alterar de forma circular
         
         if(resp !=NULL)
-        {
+        {    // $procura asterisco na resposta
             char *asterisco = strchr (resp,'*');
             if (asterisco != NULL)
-        }
+            {
+                char *resto = texto_depois_keyword(linha_limpa, conjunto);//return texto input depois da keyword
+                char *conjugado= pronomes(resto, !modo_portugues);//aplica valores da tabela do conjugaçao 
 
+                //$resposta final: oarte antes do * texto com conjugaçao e resto depois do *
+                int tamanho_antes =( asterisco -resp);//$ numerom de elementos antes do *
+                char *resposta_final =malloc(tamanho_antes +strlen(conjugado)*strlen(asterisco)+1); //o espaço necessario para o print final, tamanho antes do asterisco +"conjugado + tamanho do texto depois do asterisco +1 porque str acaba com \0"
+
+                    strncpy(resposta_final, resp, tamanho_antes);//$copia tudo antes do asterisc
+                    strcat(resposta_final,conjugado);
+                    strcat(resposta_final,asterisco+1);//$copy paste
+                    resposta_final[tamanho_antes] = '\0'//$ termina a string
+
+                    fprintf(output_global, "%s",resposta_final );
+                    if (log_file) fprintf(log_file, "%s",resposta_final );
+                    free(conjugado);
+                    free(resposta_final);
+                    free (asterisco); // seja livre
+                    }
+                    else 
+                    {
+                    fprintf(output_global, "%s", resp);
+                    if (log_file) fprintf(log_file, "%s",resp);
+                    }
+
+
+                free (ultima_linha);
+                free (linha_lida);
+            }
+            libertar_memoria()
+        }
+                if (log_file !=NULL) fclose(log_file);
+                if(ultima_linha != stdin ) fclose(input_global);
+                 if(output_global != stdout) fclose(output_global_global);
+                 return EXIT_SUCCESS;
     }
 
-}
+
