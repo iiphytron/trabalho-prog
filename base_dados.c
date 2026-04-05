@@ -108,6 +108,7 @@ void ler_ficheiro(const char *nome_ficheiro) {      // const char *, significa q
             }
             (*conjunto).keywords= auxiliar;
             (*conjunto).keywords[n] =copiar_string(linha);  // guarda a keyword
+            maiuscula((*conjunto).keywords[n]);
             (*conjunto).num_keywords++;     //incrementamos o número de keywords do conjunto
             
             free(linha);
@@ -169,7 +170,7 @@ void ler_ficheiro(const char *nome_ficheiro) {      // const char *, significa q
                 continue;
             }
 
-            if (strcmp((*conjunto).keywords[0], "BYE") == 0) {
+            if (strcmp((*conjunto).keywords[0], "BYE") == 0 || strcmp((*conjunto).keywords[0], "ADEUS") == 0) {        //pode ser BYE ou ADEUS, dependendo do idioma
                 output_fim= copiar_string((*conjunto).respostas[0]);
                 for (int k = 0; k < (*conjunto).num_keywords; k++) free((*conjunto).keywords[k]);
                 free((*conjunto).keywords);
