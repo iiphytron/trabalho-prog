@@ -150,15 +150,20 @@ static char **definir_palavras(const char *s, int *num_palavras) {
         //percorre a const dos pronomes até encontrar match ou fim da tabela
         for (int r= 0; pronomes_substituir[r].pron_original != NULL; r++) {
             
-            if (strcmp(palavras[i], pronomes_substituir[r].pron_original) == 0) {       //comparamos a palavra i com o pronome original da tabela de substituição, se for igual, fazemos a substituição
-                free(palavras[i]);             //libertamos a palavra original
-                palavras[i]= copiar_string(pronomes_substituir[r].pron_resp);  //substituímos pela resposta correspondente
-                replaced[i] = 1;           //marcamos como substituída
-                break;                      //saímos do ciclo de regras
+            if (strcmp(palavras[i], pronomes_substituir[r].pron_original) == 0) {
+            char *novo = copiar_string(pronomes_substituir[r].pron_resp);
+            free(palavras[i]);
+            palavras[i] = novo;
+            replaced[i] = 1;
+            // marcar posições seguintes com o mesmo valor para não serem reprocessadas
+            for (int j = i + 1; j < num_palavras; j++) {
+                if (strcmp(palavras[j], novo) == 0)
+                    replaced[j] = 1;
             }
+            break;
         }
     }
-
+    }
     //Função responsável por reconstruir a str final (após substituição) juntando todas as palavras com espaços 
     size_t total= 0;            //variável para guardar o tamanho total da str final (resposta), para alocarmos a memória necessária para essa str e para juntarmos as palavras todas
     for (int i= 0; i < num_palavras; i++)
@@ -182,3 +187,4 @@ static char **definir_palavras(const char *s, int *num_palavras) {
     free(replaced);                    //libertamos as variaveis usadas                        
     return str_final;
 }
+
