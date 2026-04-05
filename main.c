@@ -5,7 +5,7 @@
 #include "asterisco.h" // $ substituir por pornomes quando encontra *
 #include "base_dados.h" //$ le o ficheiro  e liberta memoria 
 #include "funcoes.h" //$elimina espaços, tudo em maisculas, copia o string
-
+#include "getopt.h"
 
 int modo_portugues = 0;//$ default= ingles, fica "1" com -p e muda para base de dados portugues
 FILE *input_global = NULL;
@@ -88,7 +88,6 @@ int main(int argc, char *argv[])//$ c= num argumentos linha de commando, v= arra
     
     while(1)
     {
-        fprintf(output_global, "input>");
         char *linha_lida = leitura_linha(input_global);//$chama leitura linha le o input; aloca memoria e guarda um ponteiro linha_lida 
             if (linha_lida == NULL)
         {break;}
@@ -116,8 +115,8 @@ int main(int argc, char *argv[])//$ c= num argumentos linha de commando, v= arra
         {
             if (output_fim != NULL)
             {
-                fprintf(output_global, "%s", output_fim);//$ imprime mensagem de despedida
-        if (log_file) fprintf (log_file, "%s",output_fim);//$guarda no log se log esta ativo
+                fprintf(output_global, "%s\n", output_fim);//$ imprime mensagem de despedida
+        if (log_file) fprintf (log_file, "%s\n",output_fim);//$guarda no log se log esta ativo
             }
         free(linha_lida);
         break;
@@ -128,11 +127,15 @@ int main(int argc, char *argv[])//$ c= num argumentos linha de commando, v= arra
     {
         if(output_repeticao != NULL)
         {
-            fprintf(output_global, "%s",output_repeticao );
-            if (log_file) fprintf(log_file,"%s", output_repeticao);
+            fprintf(output_global, "%s\n",output_repeticao );
+            if (log_file) fprintf(log_file,"%s\n", output_repeticao);
         }
+        free(linha_lida);
         continue;//$nao atuualiza nada pq é repetido
     }
+    if (ultima_linha != NULL) free(ultima_linha);//a primeira iteraçao é null nao ha nada para libertar
+    ultima_linha = copiar_string(linha_limpa);//Guardamos uma cópia da linha atual para na próxima iteração podermos comparar com o novo input e detetar repetições.
+    
     Key_Resposta *conjunto = encontrar_keyw (linha_limpa);//$ procura keyw no DB que aparece no input
     if(conjunto!= NULL)
     {
@@ -143,7 +146,11 @@ int main(int argc, char *argv[])//$ c= num argumentos linha de commando, v= arra
             char *asterisco = strchr (resp,'*');
             if (asterisco != NULL)
             {
-                char *resto = texto_depois_keyword(linha_limpa, conjunto);//return texto input depois da keyword
+                char *resto= NULL;
+                for (int i= 0; i < conjunto->num_keywords; i++) {
+                    resto= procura_keywords(linha_limpa, (*conjunto).keywords[i]);
+                    if (resto) break;
+                }
                 char *conjugado= pronomes(resto, !modo_portugues);//aplica valores da tabela do conjugaçao 
 
                 //$resposta final: oarte antes do * texto com conjugaçao e resto depois do *
@@ -157,30 +164,25 @@ int main(int argc, char *argv[])//$ c= num argumentos linha de commando, v= arra
                 
 
                     fprintf(output_global, "%s\n",resposta_final );
-                    if (log_file) fprintf(log_file, "%s",resposta_final );
+                    if (log_file) fprintf(log_file, "%s\n",resposta_final );
                     free(conjugado);
                     free(resposta_final);
-                    free (asterisco); // seja livre
                     }
                     else 
                     {
-                    fprintf(output_global, "%s", resp);
-                    if (log_file) fprintf(log_file, "%s",resp);
+                    fprintf(output_global, "%s\n", resp);
+                    if (log_file) fprintf(log_file, "%s\n",resp);
                     }
-
-
-               if (ultima_linha != NULL) free(ultima_linha);//a primeira iteraçao é null nao ha nada para libertar
-                ultima_linha = copiar_string(linha_limpa);//Guardamos uma cópia da linha atual para na próxima iteração podermos comparar com o novo input e detetar repetições.
-                free (linha_lida);
-            }
+        
         }
-                    libertar_memoria();
+    }
+        free (linha_lida);
+    }
+                libertar_memoria();
                 if (log_file !=NULL) fclose(log_file);
                 if(input_global!= stdin ) fclose(input_global);
                  if(output_global != stdout) fclose(output_global);
                 if (ultima_linha != NULL) free(ultima_linha);
                  return EXIT_SUCCESS;
+    
     }
-
-
-}
