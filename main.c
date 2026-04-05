@@ -5,6 +5,7 @@
 #include "asterisco.h" // $ substituir por pornomes quando encontra *
 #include "base_dados.h" //$ le o ficheiro  e liberta memoria 
 #include "funcoes.h" //$elimina espaços, tudo em maisculas, copia o string
+#include "getopt.h"
 
 int modo_portugues = 0;//$ default= ingles, fica "1" com -p e muda para base de dados portugues
 FILE *input_global = NULL;
@@ -16,7 +17,9 @@ int main(int argc, char *argv[])//$ c= num argumentos linha de commando, v= arra
     const char *ficheiro = "eliza.dat"; //$ base de dados default
     input_global = stdin;
     output_global = stdout;
-
+    
+    log_file = fopen("log1.txt", "w");   // criamos sempre o log por defeito
+    
     int opt;//$ a opçao que getopt guardou
     while ((opt = getopt (argc, argv, "ho:l:f:pi:") )!=-1)//$p e h nao precisa de argumentos
     {
@@ -53,13 +56,13 @@ int main(int argc, char *argv[])//$ c= num argumentos linha de commando, v= arra
         break;
 //----------------------------------------------------------------------------------------------------------------------------------------//
         case 'l': //$ cria ficheiro log
-         log_file = fopen(optarg,"w");
-         if (log_file== NULL)
-        {
-            printf("erro a abrir ficheiro %s", optarg );
-            return EXIT_FAILURE;
-        }
-        break;
+         if (log_file != NULL) fclose(log_file);   // fecha o default
+        log_file = fopen(optarg, "w");
+        if (log_file == NULL) {
+        printf("erro a abrir ficheiro %s", optarg);
+        return EXIT_FAILURE;
+    }
+    break;
 //---------------------------------------------------------------------------------------------------------------------------------------//
         case 'f' ://$ -f guarda o nome do ficheiro na variavel "ficheiro" quando chamamos ler_fich(ficheiro) carrega aquele que o utilizador indica
         ficheiro= optarg;
@@ -87,6 +90,8 @@ int main(int argc, char *argv[])//$ c= num argumentos linha de commando, v= arra
     
     while(1)
     {
+        if (output_global== stdout)
+        fprintf(stdout, ">");
         char *linha_lida = leitura_linha(input_global);//$chama leitura linha le o input; aloca memoria e guarda um ponteiro linha_lida 
             if (linha_lida == NULL)
         {break;}
@@ -98,7 +103,8 @@ int main(int argc, char *argv[])//$ c= num argumentos linha de commando, v= arra
         maiuscula(linha_limpa);
 
         if(linha_limpa[0] =='\0')
-        {free(linha_lida);
+        {
+        free(linha_lida);
         continue;}// se linha nao tiver keywords pede nova linha
         
         const char *palavra_fim;
