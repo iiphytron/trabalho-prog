@@ -37,9 +37,11 @@ Key_Resposta *encontrar_keyw(char *input);
 //Função para libertar a memória
 void libertar_memoria();
 
+//Função para procurar as keywords no input
+char *procura_keywords(const char *linha, const char *keyword);     //linha= input já em maiúsculas
+
 /*NOTA O QUE NÃO INCLUIR NO HEADER:
 funções internas que não são usadas fora do ficheiro.c, neste caso:
-procura_keywords();         // só é usada dentro do ficheiro
 aumentar_capacidade_dg();   // especifica para os dados_guardados
 */
 
