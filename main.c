@@ -19,7 +19,7 @@ int main(int argc, char *argv[])//$ c= num argumentos linha de commando, v= arra
     output_global = stdout;
 
     int opt;//$ a opçao que getopt guardou
-    while ((opt = getopt (argc, argv, "h  o:l:f:p:i:") )!=-1)
+    while ((opt = getopt (argc, argv, "ho:l:f:pi:") )!=-1)//$p e h nao precisa de argumentos
     {
         switch (opt)
         {
@@ -96,11 +96,12 @@ int main(int argc, char *argv[])//$ c= num argumentos linha de commando, v= arra
         if (log_file) fprintf(log_file, %s\n, buffer);//guarda input no log 
         //$ remover char invalidos espacos e mete em maisculas
         limpar_input(buffer);
-        char *linha_limpa =sem_espacos(buffer);
+        char *linha_limpa =sem_espacos(linha_lida);
         maiscula(linha_limpa);
 
         if(linha_limpa[0] =='\0')
-        {continue;}// se linha nao tiver keywords pede nova linha
+        {free(linha_lida);
+        continue;}// se linha nao tiver keywords pede nova linha
         
         const char *palavra_fim;
         if (modo_portugues ==1)
@@ -147,12 +148,13 @@ int main(int argc, char *argv[])//$ c= num argumentos linha de commando, v= arra
 
                 //$resposta final: oarte antes do * texto com conjugaçao e resto depois do *
                 int tamanho_antes =( asterisco -resp);//$ numerom de elementos antes do *
-                char *resposta_final =malloc(tamanho_antes +strlen(conjugado)*strlen(asterisco)+1); //o espaço necessario para o print final, tamanho antes do asterisco +"conjugado + tamanho do texto depois do asterisco +1 porque str acaba com \0"
-
+                char *resposta_final =malloc(tamanho_antes +strlen(conjugado)*strlen(asterisco+1)+1); //o espaço necessario para o print final, tamanho antes do asterisco +"conjugado + tamanho do texto depois do asterisco +1 porque str acaba com \0"
+                                                                                                    //$asterisco+1 porque precisamos o caharacter depois do *
                     strncpy(resposta_final, resp, tamanho_antes);//$copia tudo antes do asterisc
+                    resposta_final[tamanho_antes] = '\0'//$ termina a string para strcat saber onde colar
                     strcat(resposta_final,conjugado);
                     strcat(resposta_final,asterisco+1);//$copy paste
-                    resposta_final[tamanho_antes] = '\0'//$ termina a string
+                
 
                     fprintf(output_global, "%s\n",resposta_final );
                     if (log_file) fprintf(log_file, "%s",resposta_final );
@@ -167,7 +169,8 @@ int main(int argc, char *argv[])//$ c= num argumentos linha de commando, v= arra
                     }
 
 
-                free (ultima_linha);
+               if (ultima_linha != NULL) free(ultima_linha);//a primeira iteraçao é null nao ha nada para libertar
+                ultima_linha = copiar_string(linha_limpa);//Guardamos uma cópia da linha atual para na próxima iteração podermos comparar com o novo input e detetar repetições.
                 free (linha_lida);
             }
             libertar_memoria();
