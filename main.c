@@ -5,6 +5,7 @@
 #include "asterisco.h" // $ substituir por pornomes quando encontra *
 #include "base_dados.h" //$ le o ficheiro  e liberta memoria 
 #include "funcoes.h" //$elimina espaços, tudo em maisculas, copia o string
+#include "getopt.h"
 
 int modo_portugues = 0;//$ default= ingles, fica "1" com -p e muda para base de dados portugues
 FILE *input_global = NULL;
@@ -150,16 +151,23 @@ int main(int argc, char *argv[])//$ c= num argumentos linha de commando, v= arra
                     resto= procura_keywords(linha_limpa, (*conjunto).keywords[i]);
                     if (resto) break;
                 }
-                char *conjugado= pronomes(resto, !modo_portugues);//aplica valores da tabela do conjugaçao 
+                char *conjugado;
+                if (resto != NULL) {
+                    conjugado= pronomes(resto, !modo_portugues);
+                } else {
+                    conjugado= pronomes("", !modo_portugues);
+                }
 
                 //$resposta final: oarte antes do * texto com conjugaçao e resto depois do *
                 int tamanho_antes =( asterisco -resp);//$ numerom de elementos antes do *
-                char *resposta_final =malloc(tamanho_antes +strlen(conjugado)+strlen(asterisco+1)+1); //o espaço necessario para o print final, tamanho antes do asterisco +"conjugado + tamanho do texto depois do asterisco +1 porque str acaba com \0"
-                                                                                                    //$asterisco+1 porque precisamos o caharacter depois do *
+                char *resposta_final =malloc(tamanho_antes +strlen(conjugado)+strlen(asterisco+1)+ 2);  //o espaço necessario para o print final, tamanho antes do asterisco +"conjugado + tamanho do texto depois do asterisco +1 porque str acaba com \0"
+                                                                                                        //$asterisco+1 porque precisamos o caharacter depois do *, +1 para o espaço antes do conjugado
                     strncpy(resposta_final, resp, tamanho_antes);//$copia tudo antes do asterisc
                     resposta_final[tamanho_antes] = '\0';//$ termina a string para strcat saber onde colar
-                    strcat(resposta_final,conjugado);
-                    strcat(resposta_final,asterisco+1);//$copy paste
+                    if (strlen(conjugado) > 0 && tamanho_antes > 0 && resp[tamanho_antes-1] != ' ')
+                        strcat(resposta_final, " ");
+                    strcat(resposta_final, conjugado);
+                    strcat(resposta_final, asterisco+1);//$copy paste
                 
 
                     fprintf(output_global, "%s\n",resposta_final );
