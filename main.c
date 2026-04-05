@@ -174,8 +174,8 @@ int main(int argc, char *argv[])//$ c= num argumentos linha de commando, v= arra
                 ultima_linha = copiar_string(linha_limpa);//Guardamos uma cópia da linha atual para na próxima iteração podermos comparar com o novo input e detetar repetições.
                 free (linha_lida);
             }
-            libertar_memoria();
         }
+                    libertar_memoria();
                 if (log_file !=NULL) fclose(log_file);
                 if(input_global!= stdin ) fclose(input_global);
                  if(output_global != stdout) fclose(output_global);
