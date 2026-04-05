@@ -21,7 +21,7 @@ void limpar_input(char *str);
 char *sem_espacos(char *str);
 
 // copiar_string: duplica a string 'str', alocando memoria dinamicamente, 
- char *copiar_string(char *str);
+ char *copiar_string(const char *str);
 
 /* leitura_linha: le uma linha completa de um ficheiro, sem limite de tamanho.
  * A memoria e alocada dinamicamente e cresce conforme necessario.
