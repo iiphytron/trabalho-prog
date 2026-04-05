@@ -54,7 +54,7 @@ char *sem_espacos(char *str) {
 }                             
 
 //Função para copiar uma string, mantendo todas as suas características
-char *copiar_string(char *str) {
+char *copiar_string(const char *str) {
     int tamanho= strlen(str)+1;       
     char *copia = malloc(tamanho*sizeof(char));
     if (copia == NULL) 
