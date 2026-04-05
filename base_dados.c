@@ -84,7 +84,7 @@ void ler_ficheiro(const char *nome_ficheiro) {      // const char *, significa q
     char *linha;
     //Objetivo: ler os conjuntos de keywords e respostas
     while ((linha=leitura_linha(ficheiro)) != NULL) {       //enquanto ler linhas do ficheiro
-        if (linha[0] == '\0') continue;     // ignora linhas vazias
+        if (linha[0] == '\0') {free(linha); continue;}
         
         aumentar_capacidade_dg();       //aumentamos a capacidade antes de ler o ficheiro, para garantir que temos espaço para guardar os dados lidos do ficheiro
         
@@ -110,9 +110,10 @@ void ler_ficheiro(const char *nome_ficheiro) {      // const char *, significa q
             (*conjunto).keywords[n] =copiar_string(linha);  // guarda a keyword
             (*conjunto).num_keywords++;     //incrementamos o número de keywords do conjunto
             
+            free(linha);
             linha=leitura_linha(ficheiro);
         }
-        
+        free(linha);
         /*Porquê n em (*conjunto).keywords[n] =copiar_string(linha)??
         Ex.: n=2, depois de reallocarmos, o array tem espaço para 3 posições: (0,1,2)
 
@@ -140,25 +141,40 @@ void ler_ficheiro(const char *nome_ficheiro) {      // const char *, significa q
             (*conjunto).respostas[n] = copiar_string(linha);  // guarda a resposta
             (*conjunto).num_respostas++;
             
+            free(linha);
             linha=leitura_linha(ficheiro);
         }
+        free(linha);
+        linha= NULL;
 
         // Verificar se é uma das mensagens especiais
         // *conjunto é um ponteiro para a struct que guarda as keywords e respostas lidas do ficheiro
         if ((*conjunto).num_keywords == 1) {        //verifica se este conjunto tem apenas 1 keyword, pq as msgs especiais têm apenas 1 keyword  
 
             if (strcmp((*conjunto).keywords[0], "START") == 0) {        //pegamos a primeira e única keyword do conjunto, e verificamos se é igual a "START"
-                output_inicio= copiar_string((*conjunto).respostas[0]);        //se for igual guardamos a resposta em output_inicio, para depois fazermos print dela
-                continue;       //ignora, para não adicionar à base de dados normal, sem continue o programa poderia responder ao START como se fosse uma keyword normal, o que não queremos
+                output_inicio = copiar_string((*conjunto).respostas[0]);
+                for (int k = 0; k < (*conjunto).num_keywords; k++) free((*conjunto).keywords[k]);
+                free((*conjunto).keywords);
+                for (int r = 0; r < (*conjunto).num_respostas; r++) free((*conjunto).respostas[r]);
+                free((*conjunto).respostas);
+                continue;
             }
 
             if (strcmp((*conjunto).keywords[0], "REPEAT") == 0) {
                 output_repeticao = copiar_string((*conjunto).respostas[0]);
+                for (int k = 0; k < (*conjunto).num_keywords; k++) free((*conjunto).keywords[k]);
+                free((*conjunto).keywords);
+                for (int r = 0; r < (*conjunto).num_respostas; r++) free((*conjunto).respostas[r]);
+                free((*conjunto).respostas);
                 continue;
             }
 
             if (strcmp((*conjunto).keywords[0], "BYE") == 0) {
                 output_fim= copiar_string((*conjunto).respostas[0]);
+                for (int k = 0; k < (*conjunto).num_keywords; k++) free((*conjunto).keywords[k]);
+                free((*conjunto).keywords);
+                for (int r = 0; r < (*conjunto).num_respostas; r++) free((*conjunto).respostas[r]);
+                free((*conjunto).respostas);
                 continue;
             }
         }
