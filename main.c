@@ -125,7 +125,6 @@ int main(int argc, char *argv[])//$ c= num argumentos linha de commando, v= arra
 
     
     if (ultima_linha!= NULL &&(strcmp (linha_limpa, ultima_linha)==0 ))
-        }
     {
         if(output_repeticao != NULL)
         {
@@ -184,3 +183,4 @@ int main(int argc, char *argv[])//$ c= num argumentos linha de commando, v= arra
     }
 
 
+}
