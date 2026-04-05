@@ -19,7 +19,7 @@ int main(int argc, char *argv[])//$ c= num argumentos linha de commando, v= arra
     output_global = stdout;
 
     int opt;//$ a opçao que getopt guardou
-    while ((opt = getopt (argc, argv, "h:o:l:f:p") )!=-1)
+    while ((opt = getopt (argc, argv, "h:o:l:f:p:i") )!=-1)
     {
         switch (opt)
         {
@@ -81,7 +81,7 @@ int main(int argc, char *argv[])//$ c= num argumentos linha de commando, v= arra
     {
         fprintf(output_global, "%s", output_inicio);
         if (log_file)
-        printf(log_file,"%s, output_inicio");//$ se log_file=1 escreve no ficheiro log
+        fprintf(log_file,"%s, output_inicio");//$ se log_file=1 escreve no ficheiro log
 
     }
     char buffer[MAX_LENGTH]; //$ spot para guardar a linha lida
@@ -93,7 +93,7 @@ int main(int argc, char *argv[])//$ c= num argumentos linha de commando, v= arra
         if (fgets(buffer,MAX_LENGTH, input_global)==NULL) // fgets returns NULL se chegarmos a End Of FIle
         {break;}
         
-        if (log_file) printf(log_file, %s, buffer);//guarda input no log 
+        if (log_file) fprintf(log_file, %s, buffer);//guarda input no log 
         //$ remover char invalidos espacos e mete em maisculas
         limpar_input(buffer);
         char *linha_limpa =sem_espacos(buffer);
@@ -103,7 +103,7 @@ int main(int argc, char *argv[])//$ c= num argumentos linha de commando, v= arra
         {continue;}// se linha nao tiver keywords pede nova linha
         
         const char *palavra_fim;
-        if (modo_portugues =1)
+        if (modo_portugues ==1)
         {
             palavra_fim = ("ADIOS");
         }
@@ -112,20 +112,23 @@ int main(int argc, char *argv[])//$ c= num argumentos linha de commando, v= arra
             palavra_fim = ("BYE");
         }
         if (strcmp (linha_limpa, palavra_fim) == 0)//$ compara input do utilizador com palavra fim se corresponder a 0 termina cycle
-        if (output_fim != NULL)
         {
-            fprintf(output_global, "%s", output_fim);//$ imprime mensagem de despedida
+            if (output_fim != NULL)
+            {
+                fprintf(output_global, "%s", output_fim);//$ imprime mensagem de despedida
         if (log_file) fprintf (log_file, "%s",output_fim);//$guarda no log se log esta ativo
+            }
+        free(linha_lida);
         break;
         }                    
 
     }
     if (ultima_linha!= NULL &&(strcmp (linha_limpa, ultima_linha)==0 ))
     {
-        if(output_repetiçao != NULL)
+        if(output_repeticao != NULL)
         {
-            fprintf(output_global, "%s",output_repetiçao );
-            if (log_file) fprintf(log_file,"%s", output_repetiçao);
+            fprintf(output_global, "%s",output_repeticao );
+            if (log_file) fprintf(log_file,"%s", output_repeticao);
         }
         continue;//$nao atuualiza nada pq é repetido
     }
@@ -167,11 +170,11 @@ int main(int argc, char *argv[])//$ c= num argumentos linha de commando, v= arra
                 free (ultima_linha);
                 free (linha_lida);
             }
-            libertar_memoria()
+            libertar_memoria();
         }
                 if (log_file !=NULL) fclose(log_file);
-                if(ultima_linha != stdin ) fclose(input_global);
-                 if(output_global != stdout) fclose(output_global_global);
+                if(input_global!= stdin ) fclose(input_global);
+                 if(output_global != stdout) fclose(output_global);
                  return EXIT_SUCCESS;
     }
 
